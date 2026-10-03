@@ -1,7 +1,7 @@
 # Dev Container — Design
 
 Date: 2026-10-03
-Status: Approved in conversation; awaiting written-spec review
+Status: Approved (2026-10-03)
 
 ## Purpose
 
