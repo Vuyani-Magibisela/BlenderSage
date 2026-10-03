@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Development-only dependencies for the dev container's Python.
+# fake-bpy-module provides bpy stubs for editor autocompletion; never install it into Blender's bundled Python.
+pytest
+fake-bpy-module-5.2
