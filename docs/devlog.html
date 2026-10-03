@@ -133,7 +133,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
     <summary><h2>Milestone 1 — Prove guidance and recording</h2></summary>
     <div class="panel-body">
       <ol class="steps">
-        <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip wait">In review</span></span></li>
+        <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Built</span><span class="chip wait">VS Code check pending</span></span></li>
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
@@ -156,6 +156,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
           <li>Inside the container Blender reports <code>5.2.2 LTS</code> (build <code>d13f752e3b9c</code>) with Python <code>3.13.13</code>, matching the Windows install.</li>
           <li>Checked from Windows: a Python error inside Blender returns exit code 1 through <code>docker exec</code>; a mistyped Blender version fails the build with a 404; files round-trip through the shared folder; a stopped container gives a clear error.</li>
           <li>Container name is fixed as <code>blendersage-dev</code> so Claude Code on Windows can run tests with <code>docker exec</code>.</li>
+          <li>Independent review of the branch: no critical or important issues. Six minor items deferred: add a <code>.gitattributes</code> for line endings, pin package versions, put the Blender checksum in the Dockerfile, and document that shared-folder files show as owned by root.</li>
         </ul>
         <div class="commits"><span>d30693f image</span><span>5861f14 devcontainer.json</span><span>branch dev-container</span></div>
       </article>
