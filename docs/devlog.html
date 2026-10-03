@@ -1,0 +1,218 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<title>BlenderSage Dev Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single reading column styled like a Blender Properties editor — collapsible panels, header strip, status chips. */
+:root {
+  --bg: #f3f3f1;
+  --panel: #ffffff;
+  --panel-head: #e9e9e6;
+  --line: #d6d6d1;
+  --fg: #1f2124;
+  --muted: #5d6066;
+  --accent: #b85c00;
+  --accent-soft: #fbe9d6;
+  --ok: #2f7a3d;
+  --ok-soft: #dcefe0;
+  --wait: #6a5a00;
+  --wait-soft: #f4ecc2;
+  --todo: #5d6066;
+  --todo-soft: #ebebe8;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d1d1f; --panel: #2a2a2c; --panel-head: #333336; --line: #414145;
+    --fg: #e6e6e3; --muted: #a4a6ab; --accent: #f0a050; --accent-soft: #3d2c19;
+    --ok: #7fcf8d; --ok-soft: #1f3324; --wait: #e2cf6a; --wait-soft: #3a3418;
+    --todo: #a4a6ab; --todo-soft: #36363a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d1d1f; --panel: #2a2a2c; --panel-head: #333336; --line: #414145;
+  --fg: #e6e6e3; --muted: #a4a6ab; --accent: #f0a050; --accent-soft: #3d2c19;
+  --ok: #7fcf8d; --ok-soft: #1f3324; --wait: #e2cf6a; --wait-soft: #3a3418;
+  --todo: #a4a6ab; --todo-soft: #36363a; color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+code { background: var(--todo-soft); padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { display: grid; gap: 12px; }
+.eyebrow { font: 600 0.75rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.lede { color: var(--muted); font-size: 1.05rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.fact { font: 0.8rem/1.4 var(--font-mono); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 9px; }
+.fact b { color: var(--accent); font-weight: 600; }
+
+/* Properties-editor panels */
+details.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+details.panel > summary { list-style: none; cursor: pointer; background: var(--panel-head); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary::before { content: ""; width: 0; height: 0; border-left: 6px solid var(--muted); border-top: 5px solid transparent; border-bottom: 5px solid transparent; transition: transform 0.15s; }
+details.panel[open] > summary::before { transform: rotate(90deg); }
+.panel-body { padding: 18px 18px 20px; display: grid; gap: 14px; min-width: 0; }
+@media (prefers-reduced-motion: reduce) { details.panel > summary::before { transition: none; } }
+
+.chip { font: 600 0.72rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 7px; border-radius: 4px; white-space: nowrap; }
+.chip.done { color: var(--ok); background: var(--ok-soft); }
+.chip.wait { color: var(--wait); background: var(--wait-soft); }
+.chip.todo { color: var(--todo); background: var(--todo-soft); }
+.chip.gate { color: var(--accent); background: var(--accent-soft); }
+
+/* Milestone tracker */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.steps li { display: grid; grid-template-columns: 3.2rem 1fr auto; gap: 12px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+.steps li:first-child { border-top: 0; }
+.steps .n { font: 600 0.8rem var(--font-mono); color: var(--muted); }
+.steps .t { min-width: 0; }
+.steps .t small { display: block; color: var(--muted); font-size: 0.88rem; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* Timeline */
+.entry { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.entry:first-of-type { border-top: 0; padding-top: 0; }
+.entry-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+.entry-head time { font: 600 0.8rem var(--font-mono); color: var(--accent); }
+.entry ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 4px; }
+.entry li { max-width: 68ch; }
+.commits { display: flex; flex-wrap: wrap; gap: 6px; }
+.commits span { font: 0.76rem var(--font-mono); border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; color: var(--muted); }
+
+/* Tables */
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+th { font: 600 0.72rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-top: 0; }
+td.mono { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.note { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; color: var(--muted); }
+footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
+@media (max-width: 520px) {
+  h1 { font-size: 1.7rem; }
+  .steps li { grid-template-columns: 2.4rem 1fr; }
+  .steps .chips { grid-column: 2; justify-content: flex-start; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Open Teaching Extension for Blender · GPL-3.0-or-later</span>
+    <h1>BlenderSage Dev Log</h1>
+    <p class="lede">A running record of how the extension is being built: what was done, what was decided and why, and what is still open. Teachers create guided lessons inside Blender; learners follow them with instructions, viewport guidance and automatic checks.</p>
+    <div class="facts">
+      <span class="fact">Phase <b>Milestone 1</b></span>
+      <span class="fact">Target <b>Blender 5.2.2 LTS</b> · Windows</span>
+      <span class="fact">Python <b>3.13.13</b> (bundled)</span>
+      <span class="fact">Updated <b>2026-10-03</b></span>
+    </div>
+  </header>
+
+  <details class="panel" open id="status">
+    <summary><h2>Where things stand</h2></summary>
+    <div class="panel-body">
+      <p>Groundwork is in place: project instructions, a design spec and plan for the development environment, and a working dev container with headless Blender 5.2.2. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
+      <p class="note">Step 0 is a checkpoint. Work stops there and reports findings before any extension skeleton is built.</p>
+    </div>
+  </details>
+
+  <details class="panel" open id="milestone-1">
+    <summary><h2>Milestone 1 — Prove guidance and recording</h2></summary>
+    <div class="panel-body">
+      <ol class="steps">
+        <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip wait">In review</span></span></li>
+        <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+      </ol>
+    </div>
+  </details>
+
+  <details class="panel" open id="timeline">
+    <summary><h2>Timeline</h2></summary>
+    <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-03">2026-10-03</time><h3>Dev container built and verified</h3></div>
+        <ul>
+          <li>Image: <code>python:3.13-slim-bookworm</code> plus Blender 5.2.2 for Linux, downloaded from download.blender.org and checked against the official SHA-256 before unpacking to <code>/opt/blender</code>.</li>
+          <li>Blender needed nine system libraries to start headless, found with <code>ldd</code> in one pass: <code>libgl1 libice6 libsm6 libx11-6 libxext6 libxfixes3 libxi6 libxkbcommon0 libxrender1</code>.</li>
+          <li>Inside the container Blender reports <code>5.2.2 LTS</code> (build <code>d13f752e3b9c</code>) with Python <code>3.13.13</code>, matching the Windows install.</li>
+          <li>Checked from Windows: a Python error inside Blender returns exit code 1 through <code>docker exec</code>; a mistyped Blender version fails the build with a 404; files round-trip through the shared folder; a stopped container gives a clear error.</li>
+          <li>Container name is fixed as <code>blendersage-dev</code> so Claude Code on Windows can run tests with <code>docker exec</code>.</li>
+        </ul>
+        <div class="commits"><span>d30693f image</span><span>5861f14 devcontainer.json</span><span>branch dev-container</span></div>
+      </article>
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-03">2026-10-03</time><h3>Dev container designed and planned</h3></div>
+        <ul>
+          <li>Chose a full VS Code Dev Container used by the developer; Claude Code stays on Windows, where it can also reach the Windows Blender 5.2 and the Blender MCP server for UI spikes.</li>
+          <li>The container deliberately does not cover viewport overlays, display scaling or Windows behaviour. Those stay on the Windows install with a manual checklist.</li>
+          <li>Wrote the design spec and a four-task implementation plan.</li>
+        </ul>
+        <div class="commits"><span>35104b0 spec</span><span>9896d99 plan</span></div>
+      </article>
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-03">2026-10-03</time><h3>Project instructions and tooling survey</h3></div>
+        <ul>
+          <li>Reviewed <code>CLAUDE.md</code> and the Milestone 1 brief; fixed paths and added real commands.</li>
+          <li>Found Blender 5.2.2 LTS at <code>D:\Program Files\Blender Foundation\Blender 5.2\</code>, not on PATH, with older 4.x builds on C: that must not be picked up by mistake.</li>
+          <li>Blender 5.2 bundles Python 3.13; the Windows system Python is 3.11 and has no pytest yet.</li>
+          <li>Git repository initialised; work happens on feature branches.</li>
+        </ul>
+      </article>
+
+    </div>
+  </details>
+
+  <details class="panel" open id="decisions">
+    <summary><h2>Decisions</h2></summary>
+    <div class="panel-body">
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Decision</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">2026-10-03</td><td>Dev container for tests and editing; UI work stays on Windows Blender</td><td>A Linux container can't show how overlays and display scaling behave on the Windows lab machines.</td></tr>
+            <tr><td class="mono">2026-10-03</td><td>Container Python is 3.13, the same version Blender bundles</td><td><code>core/</code> is unit-tested on the interpreter it will actually run on.</td></tr>
+            <tr><td class="mono">2026-10-03</td><td>Keep <code>fake-bpy-module</code> as type-only stubs</td><td>Editors get <code>bpy</code> autocompletion, but <code>import bpy</code> still fails in plain Python, so pytest catches any <code>bpy</code> import in <code>core/</code>.</td></tr>
+            <tr><td class="mono">2026-10-03</td><td>No <code>.dockerignore</code></td><td>The image is built only from <code>.devcontainer/</code> and copies nothing, so there is nothing to exclude.</td></tr>
+            <tr><td class="mono">2026-10-03</td><td>Keep this log's source in the repo as <code>docs/devlog.html</code></td><td>The development record is versioned with the code it describes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details class="panel" open id="open">
+    <summary><h2>Open questions</h2></summary>
+    <div class="panel-body">
+      <ul style="margin:0;padding-left:1.2rem;display:grid;gap:6px">
+        <li>Should <code>docs/CodexPlan.md</code> become <code>docs/plan.md</code>? <code>CLAUDE.md</code> says the plan wins on conflicts, so it needs one agreed location.</li>
+        <li>The Milestone 1 brief cites “plan section 3.2” for the recorder design, but in the current plan that material is in section 2. The section references need reconciling.</li>
+        <li>Manual check pending: open the repo in VS Code with “Reopen in Container” and confirm <code>bpy</code> autocompletion works.</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    <p>This log is updated after each milestone step or significant decision. Source: <code>docs/devlog.html</code> in the repository.</p>
+  </footer>
+</div>
