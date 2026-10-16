@@ -38,6 +38,11 @@ def main():
     assert hasattr(bpy.types, PANEL), "panel missing after enable"
     print("ok   installed and enabled", MODULE)
 
+    bpy.ops.blendersage.start_example()
+    runtime = sys.modules[MODULE + ".blender.guidance.runtime"]
+    assert runtime.active_session() is not None, "example lesson did not start from the installed zip"
+    print("ok   bundled lesson starts:", runtime.active_session().lesson.title)
+
     bpy.ops.preferences.addon_disable(module=MODULE)
     assert not addon_utils.check(MODULE)[0], "still enabled after disable"
     assert not hasattr(bpy.types, PANEL), "panel left after disable"

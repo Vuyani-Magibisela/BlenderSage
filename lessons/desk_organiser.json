@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "desk-organiser-m1",
+  "title": "Model a desk organiser",
+  "targets": {
+    "organiser": {"label": "organiser box", "type": "MESH", "name_prefix": "Cube"}
+  },
+  "steps": [
+    {
+      "id": "find-cube",
+      "title": "Find the starting cube",
+      "instruction": "The default cube becomes the organiser. Make sure you are in Object Mode.",
+      "why": "Starting from a simple shape is how most models begin.",
+      "target": "organiser",
+      "ui_hint": {"editor": "OUTLINER", "path": "Outliner > Collection > Cube"},
+      "checks": [
+        {"type": "object_exists", "target": "organiser"},
+        {"type": "mode", "mode": "OBJECT"}
+      ]
+    },
+    {
+      "id": "size",
+      "title": "Size the box: 30 × 20 × 10 cm",
+      "instruction": "Set the cube's dimensions to X 0.3 m, Y 0.2 m, Z 0.1 m.",
+      "why": "Real objects have real sizes; working to measurements keeps a model believable.",
+      "target": "organiser",
+      "ui_hint": {"editor": "VIEW_3D", "path": "3D Viewport > Sidebar (N) > Item > Dimensions"},
+      "hints": ["Press N with the mouse over the 3D Viewport to open the Sidebar.", "Type each value and press Enter."],
+      "checks": [
+        {"type": "dimensions", "target": "organiser", "value": [0.3, 0.2, 0.1], "tolerance": 0.002}
+      ]
+    },
+    {
+      "id": "apply-scale",
+      "title": "Apply the scale",
+      "instruction": "Apply the scale so the object's scale is 1, 1, 1 while its size stays 30 × 20 × 10 cm.",
+      "why": "Modifiers such as Bevel work on the unscaled shape; an unapplied scale makes bevels uneven.",
+      "target": "organiser",
+      "ui_hint": {"editor": "VIEW_3D", "path": "3D Viewport > Object menu > Apply > Scale (or Ctrl+A > Scale)"},
+      "checks": [
+        {"type": "scale", "target": "organiser", "value": [1, 1, 1], "tolerance": 0.0001}
+      ]
+    },
+    {
+      "id": "add-bevel",
+      "title": "Add a Bevel modifier",
+      "instruction": "Add a Bevel modifier to round the box's edges.",
+      "why": "Few real objects have perfectly sharp edges; bevels catch the light.",
+      "target": "organiser",
+      "ui_hint": {"editor": "PROPERTIES", "path": "Properties > Modifiers (wrench) > Add Modifier > Generate > Bevel"},
+      "checks": [
+        {"type": "modifier", "target": "organiser", "modifier": "BEVEL"}
+      ]
+    },
+    {
+      "id": "bevel-settings",
+      "title": "Set the bevel: 5 mm, 3 segments",
+      "instruction": "Set the Bevel Amount to 0.005 m and Segments to 3.",
+      "target": "organiser",
+      "ui_hint": {"editor": "PROPERTIES", "path": "Properties > Modifiers > Bevel > Amount, Segments"},
+      "checks": [
+        {"type": "modifier", "target": "organiser", "modifier": "BEVEL",
+         "settings": {"width": 0.005, "segments": 3}, "tolerance": 0.0005}
+      ]
+    },
+    {
+      "id": "open-top",
+      "title": "Delete the top face",
+      "instruction": "Press Tab for Edit Mode, switch to Face Select, click the top face and delete it (X > Faces). Confirm when the box is open.",
+      "why": "An open top turns a solid block into a container.",
+      "target": "organiser",
+      "ui_hint": {"editor": "VIEW_3D", "path": "3D Viewport header > Mode menu > Edit Mode, then Face Select (or press Tab, then 3)"},
+      "hints": ["Orbit the view with the middle mouse button to see the top face.", "Press Numpad Period to zoom to the selected object."],
+      "manual_confirm": true,
+      "checks": []
+    },
+    {
+      "id": "solidify",
+      "title": "Give the walls thickness",
+      "instruction": "Return to Object Mode and add a Solidify modifier with Thickness 0.005 m.",
+      "why": "A deleted face leaves walls with no thickness; Solidify makes them solid.",
+      "target": "organiser",
+      "ui_hint": {"editor": "PROPERTIES", "path": "Properties > Modifiers (wrench) > Add Modifier > Generate > Solidify"},
+      "checks": [
+        {"type": "mode", "mode": "OBJECT"},
+        {"type": "modifier", "target": "organiser", "modifier": "SOLIDIFY",
+         "settings": {"thickness": 0.005}, "tolerance": 0.0005}
+      ]
+    },
+    {
+      "id": "material",
+      "title": "Give it a wood material",
+      "instruction": "Create a new material and name it Wood.",
+      "target": "organiser",
+      "ui_hint": {"editor": "PROPERTIES", "path": "Properties > Material (red sphere) > New, then rename it to Wood"},
+      "checks": [
+        {"type": "material_assigned", "target": "organiser", "name": "Wood"}
+      ]
+    }
+  ]
+}

@@ -5,13 +5,16 @@
     blender -b --factory-startup --python-exit-code 1 --python tests/blender/run_all.py -- test_register
 
 Collects test_*.py files in this folder and runs their test_* functions in file
-order. Arguments after `--` filter by substring of "<file>::<function>".
+order, each starting from the factory scene. Arguments after `--` filter by
+substring of "<file>::<function>".
 Exits with code 1 when any test fails.
 """
 import importlib.util
 import os
 import sys
 import traceback
+
+import bpy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,6 +43,7 @@ def main():
             if filters and not any(f in test_id for f in filters):
                 continue
             try:
+                bpy.ops.wm.read_factory_settings(use_empty=False)  # each test starts from the factory scene
                 getattr(module, name)()
             except Exception:
                 failed.append(test_id)
