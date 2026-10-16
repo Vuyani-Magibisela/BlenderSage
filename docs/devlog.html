@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Groundwork is in place: project instructions, a working dev container with headless Blender 5.2.2, and a public repository with the first pull request ready to merge. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
+      <p>Groundwork is in place: project instructions, a working dev container with headless Blender 5.2.2, and a public repository with that work merged into <code>main</code>. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
       <p class="note">Step 0 is a checkpoint. Work stops there and reports findings before any extension skeleton is built.</p>
     </div>
   </details>
@@ -155,6 +155,9 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
           <li>Opened <a href="https://github.com/Vuyani-Magibisela/BlenderSage/pull/1">pull request 1</a> to merge the dev container, <code>CLAUDE.md</code> and this log into <code>main</code>.</li>
           <li>Confirmed in VS Code: <code>bpy.context.</code> autocompletion works inside the container. Pylance's “could not be resolved from source” warning is now hidden, since it only says the stubs have no runtime module.</li>
           <li>Working split: git runs in the Windows terminal; Python, pytest and headless Blender run in the container terminal.</li>
+          <li>Published the product plan (<code>docs/CodexPlan.md</code>) and the Milestone 1 brief in the repository.</li>
+          <li>Rule added to <code>CLAUDE.md</code>: no <code>Co-Authored-By</code> or other co-author trailer on any commit.</li>
+          <li>Merged pull request 1 into <code>main</code>.</li>
         </ul>
         <div class="commits"><span>bef69cc VS Code setting</span><span>52b5e60 CLAUDE.md</span></div>
       </article>

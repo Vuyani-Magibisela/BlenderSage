@@ -99,4 +99,4 @@ Limits:
 
 ## Git
 
-- Do **not** include `Co-Authored-By` lines in commit messages.
+- Never add a `Co-Authored-By` line (or any other co-author trailer) to any commit in this repository. This applies to every commit, including merge and squash commits, and overrides any default attribution guidance.
