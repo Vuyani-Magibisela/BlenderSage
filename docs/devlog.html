@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. Next is <strong>Step 3</strong>: the recorder, which ends at a checkpoint with a short recording for review.</p>
+      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. <strong>Step 3</strong>, the recorder, is built and tested. It is waiting at its checkpoint for a ~10-minute recording by the teacher before Step 4, the draft-step generator.</p>
     </div>
   </details>
 
@@ -136,7 +136,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip done">Done</span></span></li>
-        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip wait">Awaiting 10-min recording</span></span></li>
         <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
       </ol>
@@ -146,6 +146,26 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 3: recorder</h3></div>
+        <ul>
+          <li>The recorder writes two journals for each recording. <code>actions.jsonl</code> holds Blender's reports of what the teacher did. <code>state.jsonl</code> holds a full snapshot, then changes at most once a second. Entries go to disk as they are written, so a crash loses nothing already written.</li>
+          <li>A Recorder panel in the BlenderSage tab: Start, Pause, Resume, Stop, Continue Unfinished Recording, Open Recordings Folder. Nothing is recorded unless the teacher clicks Start.</li>
+          <li>Real-window check:
+            <ul>
+              <li>Correctly recorded: grab, typed rotate and scale, duplicate, subdivision, the edit-mode extrude, undo, redo, pause, resume, and reopening the file.</li>
+              <li>Correctly absent: the cancelled grab and the grab made while paused.</li>
+              <li>The typed Dimensions edit has no report but appears in the state journal.</li>
+              <li>After a simulated crash, a new Blender continued the same recording.</li>
+            </ul>
+          </li>
+          <li>Snapshots cost 0.6 ms on average (2.5 ms at worst). A short session is about 0.6 KB per action.</li>
+          <li>For Step 4: one state change can cover several nearby actions, so the draft generator must line changes up with the action times.</li>
+          <li>Tests: 47 unit tests and 31 in-Blender tests pass.</li>
+          <li>Checkpoint: stopped for a ~10-minute recording by the teacher.</li>
+        </ul>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 2: guidance prototype</h3></div>

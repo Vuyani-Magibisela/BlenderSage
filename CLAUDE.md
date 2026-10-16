@@ -36,13 +36,14 @@ core/                    # pure Python, no bpy imports (testable without Blender
   targets.py             # semantic target -> one object, or missing/ambiguous
   checks.py              # completion checks evaluated on a scene snapshot
   session.py             # next/back/skip/confirm; never touches the scene
+  journal.py             # append-only JSON Lines journals (header + entries, crash-tolerant)
+  state_diff.py          # diff/apply between scene snapshots (state journal format)
   draft_generator.py     # (planned) merges action + state journals into draft steps
-  journal.py             # (planned) append-only journal file format
 blender/                 # everything that touches bpy
   lifecycle.py           # the only place handlers/timers/draw handlers/msgbus are added
   state.py               # read-only scene snapshot (dict) consumed by core/checks.py
   guidance/              # runtime (active lesson + timer), overlay, operators, sidebar
-  recorder/              # (planned) action journal + state snapshots
+  recorder/              # recorder.py (journals, timers, handlers), ui.py (Recorder panel)
 lessons/                 # bundled example lesson JSON (ships in the extension zip)
 spikes/                  # throwaway API experiments (Milestone 1 step 0)
 tests/
@@ -79,6 +80,7 @@ Commands below use PowerShell; `$B = "D:\Program Files\Blender Foundation\Blende
   `& $B -b --factory-startup --python-exit-code 1 --python tests/blender/run_all.py`
   Filter by substring of `<file>::<test>` after `--`, e.g. `... run_all.py -- test_register.py::test_enable_disable_twice`. The runner resets to factory settings before each test. Tests import the repo root as package `blendersage` (`tests/blender/extension_loader.py`) and call `register()`/`unregister()` directly.
 - Guidance GUI check (screenshots at UI scale 1.0/1.5/2.0 and draw timings to `spikes/out/`): `& $B --factory-startup --enable-event-simulate --python tests/blender/gui_check_guidance.py`
+- Recorder GUI check with real reports, in two runs (phase 1 exits without stopping to simulate a crash; phase 2 continues and summarises): `& $B --factory-startup --enable-event-simulate --python tests/blender/gui_check_recorder.py -- phase1`, then `-- phase2`. Headless recorder tests inject stand-in reports through `recorder.start(reports_source=...)`.
 - Run a spike: `& $B -b --factory-startup --python-exit-code 1 --python spikes/<name>.py` (drop `-b` for spikes that need a viewport/UI).
 - Extension packaging (from the repo root): `& $B --command extension validate`, and `& $B --command extension build --output-dir <existing folder>` (the folder must already exist). `[build] paths_exclude_pattern` in the manifest keeps docs, tests and spikes out of the zip.
 - Real install/enable/disable/uninstall of the built zip, isolated from the real Blender setup:
