@@ -124,8 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Groundwork is in place: project instructions, a working dev container with headless Blender 5.2.2, and a public repository with that work merged into <code>main</code>. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
-      <p class="note">Step 0 is a checkpoint. Work stops there and reports findings before any extension skeleton is built.</p>
+      <p>Milestone 1, Step 0 is complete. Blender 5.2's reports, screenshot and drawing APIs support the plan, and the recorder design is written into the plan. No extension code exists yet. Next is <strong>Step 1</strong>: the extension skeleton, with a test that enabling and then disabling it leaves no handlers, timers or subscriptions behind.</p>
     </div>
   </details>
 
@@ -134,7 +133,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
     <div class="panel-body">
       <ol class="steps">
         <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Done</span></span></li>
-        <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip wait">Awaiting review</span></span></li>
+        <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
@@ -156,7 +155,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
           <li><strong>Gaps the state snapshots must fill:</strong> Dimensions edits leave no report; undo and redo leave no report but trigger handlers; reports are cleared when a file is opened; reports from other add-ons look the same as the user's.</li>
           <li><strong>Overlay drawing is cheap:</strong> about 0.3 ms per draw, 1.3 ms at worst, at interface scales 1.0, 1.5 and 2.0. The first draw costs about 80 ms. The card must avoid the toolbar, which overlaps the viewport by default.</li>
           <li><strong>Screenshots:</strong> the new <code>Window.screenshot()</code> returns the window's pixels in about 6 ms.</li>
-          <li>Results are in <code>docs/m1-findings.md</code>. Stopped at the checkpoint for review.</li>
+          <li>Results are in <code>docs/m1-findings.md</code>. At the checkpoint the design was approved: actions come from reports, with state snapshots covering the gaps. The journal and merge rules are now in <code>docs/plan.md</code> section 2, “Recorder design”, and the work is merged into <code>main</code>.</li>
         </ul>
       </article>
 
@@ -221,6 +220,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
             <tr><td class="mono">2026-10-03</td><td>Container Python is 3.13, the same version Blender bundles</td><td><code>core/</code> is unit-tested on the interpreter it will actually run on.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>Keep <code>fake-bpy-module</code> as type-only stubs</td><td>Editors get <code>bpy</code> autocompletion, but <code>import bpy</code> still fails in plain Python, so pytest catches any <code>bpy</code> import in <code>core/</code>.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>No <code>.dockerignore</code></td><td>The image is built only from <code>.devcontainer/</code> and copies nothing, so there is nothing to exclude.</td></tr>
+            <tr><td class="mono">2026-10-16</td><td>Recorder design added to the plan: an action journal from reports and a state journal of throttled snapshots, plus initial merge rules</td><td>Approved at the Step 0 checkpoint; the brief's journal rules had no source until now.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Record actions from <code>WindowManager.reports</code>, not the operator history</td><td>Undo clears the operator history and it skips operators called from scripts. Reports keep every action with a session-unique ID.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Renamed the product plan to <code>docs/plan.md</code> and fixed the brief's section references</td><td><code>CLAUDE.md</code> treats the plan as the authority, so it needs the expected name and accurate references.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Hide Pylance's “could not be resolved from source” warning for the workspace</td><td>It only means the <code>bpy</code> type stubs have no runtime module, which is always true outside Blender.</td></tr>
@@ -235,7 +235,6 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
     <summary><h2>Open questions</h2></summary>
     <div class="panel-body">
       <ul style="margin:0;padding-left:1.2rem;display:grid;gap:6px">
-        <li>The plan's recorder description is one paragraph. The rules for the action and state journals (from the Step 0 findings) need adding to <code>docs/plan.md</code> before Step 3.</li>
         <li>Saving a teacher reference image from <code>Window.screenshot()</code> pixels to a PNG is still untested; to check in Step 2.</li>
         <li>Timings so far come from the development PC. They need repeating on a lab machine.</li>
       </ul>

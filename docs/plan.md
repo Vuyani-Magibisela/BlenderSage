@@ -38,6 +38,38 @@ The initial recorder covers primitives, object operations, transforms, common mo
 
 Recording uses an incremental local journal, so long lessons survive Blender’s limited operator history. Unsupported or ambiguous actions become review items. Captured commands are never executed as tutorial code. Blender 5.2’s action reports and screenshot APIs support this approach. [Python API changes](https://developer.blender.org/docs/release_notes/5.2/python_api/)
 
+### Recorder design
+
+Based on the Milestone 1 Step 0 evidence in `docs/m1-findings.md` (Blender 5.2.2). The recorder writes two append-only journals on disk.
+
+**Action journal.**
+
+- **Source:** `WindowManager.reports` entries of type `OPERATOR` and `PROPERTY`. They cover confirmed tools with their final values, including typed values, and edits made in interface fields and sliders. The operator history (`WindowManager.operators`) is not used: undo clears it and it skips operators called from scripts.
+- **Capture:** a persistent timer polls the reports about every 0.1 s and appends each new report with its `session_uid`, its type, its message and the poll time. Reports carry no timestamp.
+- **De-duplication:** by Blender session plus `session_uid`, which keeps increasing across file loads.
+- **Durability:** each entry is written to disk as it is captured, because opening a file clears the reports.
+- **Safety:** report messages are evidence only. They may be parsed with `ast.parse` and `ast.literal_eval` into an operator id or property path plus values. They are never executed.
+
+**State journal.**
+
+- **What:** throttled snapshots of the documented property set: objects and their types, transforms and dimensions, mode, selection and active object, modifiers and their settings, and material assignments.
+- **When:** after undo and redo (`undo_post`, `redo_post`), after a file load (`load_post`), and after changes flagged by message-bus subscriptions or depsgraph updates. Triggers only mark the state as changed; an idle timer takes the snapshot, never more than once per throttle interval and never inside a handler.
+- **Diffs:** each snapshot is stored as a change from the previous one.
+
+**Lifecycle.**
+
+- **Persistence:** timers and handlers are registered as persistent, so recording continues across file loads. All of them are removed when recording stops and when the extension is disabled.
+- **Pause and resume:** both are entries in the action journal.
+- **Recovery:** after a crash, the journal on disk is the record; it is reopened and continued.
+
+**Merging into draft steps (initial rules, validated in Step 4).**
+
+1. Each supported `OPERATOR` or `PROPERTY` entry is evidence for one action. Repeated edits of the same property path with no other action between them collapse to the final value.
+2. A state change that no action explains becomes a draft from the state diff. A Dimensions edit, which leaves no report, is the known case.
+3. Undo and redo are matched against the state journal. Work that was undone and not redone is left out of the drafts; when the match is unclear, the step becomes a review item.
+4. Reports for unsupported operators, actions from other add-ons or scripts (which Blender reports the same way as user actions), and anything that fails to parse become review items, never silent drops.
+5. Cancelled tools leave no report and are correctly absent.
+
 ### Learner guidance
 
 Provide a native sidebar for lesson controls and a collapsible instruction overlay inside the 3D viewport.

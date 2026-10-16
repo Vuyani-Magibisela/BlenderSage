@@ -39,13 +39,13 @@ Verify manually: workspace changes, display scaling (100%, 150%, 200%), undo, lo
 
 ### Step 3 — Recorder  ⛔ checkpoint
 
-Implement the action journal and state journal (plan section 2, "Teacher authoring"; journal rules from the Step 0 findings in `docs/m1-findings.md`): incremental append-only journal on disk, throttled state snapshots of the documented property set, pause/resume, and recovery after Blender is closed unexpectedly.
+Implement the action journal and state journal (plan section 2, "Recorder design"): incremental append-only journal on disk, throttled state snapshots of the documented property set, pause/resume, and recovery after Blender is closed unexpectedly.
 
 **Stop and report** with a short recording (~10 minutes) and its raw journals before building the generator.
 
 ### Step 4 — Draft-step generator
 
-Pure-Python module in `core/draft_generator.py` that merges the two journals into draft steps and review items, following the merge rules agreed after Step 0 (to be added to plan section 2). Unit-test it with recorded journal fixtures. A plain text or simple panel view of the drafts is enough; no editor UI yet.
+Pure-Python module in `core/draft_generator.py` that merges the two journals into draft steps and review items, following the merge rules in plan section 2, "Recorder design". Unit-test it with recorded journal fixtures. A plain text or simple panel view of the drafts is enough; no editor UI yet.
 
 ### Step 5 — Decision-gate evidence
 

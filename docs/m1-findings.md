@@ -80,7 +80,7 @@ The plan (section 2) says: "Blender 5.2's action reports and screenshot APIs sup
 4. **Journal must be written incrementally and survive file loads:** reports are cleared on load, and non-persistent timers are dropped on load (seen when a spike stalled after `open_mainfile`). Recorder timers and handlers must be registered as persistent.
 5. **msgbus is a cheap change signal** (once per completed edit) that can schedule throttled snapshots. It misses viewport transforms, so depsgraph updates or reports must cover those.
 
-**Proposed design change:** none to the plan's direction. Its recorder paragraph is too thin to build from, though. The brief's Step 3 and 4 refer to "plan section 3.2" rules for the action and state journals, and no such section exists. The rules above should be written into `docs/plan.md` before Step 3.
+**Design change (approved 2026-10-16):** the plan's direction stands. The journal rules above were written into `docs/plan.md` section 2, "Recorder design", and the brief now points there.
 
 ### Testing notes for later steps
 
