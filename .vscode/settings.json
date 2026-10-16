@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+{
+  // bpy is only available inside Blender; Pylance uses the fake-bpy-module type stubs
+  // for completion and would otherwise warn that the stubs have no runtime module.
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingModuleSource": "none"
+  }
+}

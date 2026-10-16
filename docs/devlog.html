@@ -117,7 +117,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
       <span class="fact">Phase <b>Milestone 1</b></span>
       <span class="fact">Target <b>Blender 5.2.2 LTS</b> · Windows</span>
       <span class="fact">Python <b>3.13.13</b> (bundled)</span>
-      <span class="fact">Updated <b>2026-10-03</b></span>
+      <span class="fact">Updated <b>2026-10-16</b></span>
     </div>
   </header>
 
@@ -195,6 +195,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
             <tr><td class="mono">2026-10-03</td><td>Container Python is 3.13, the same version Blender bundles</td><td><code>core/</code> is unit-tested on the interpreter it will actually run on.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>Keep <code>fake-bpy-module</code> as type-only stubs</td><td>Editors get <code>bpy</code> autocompletion, but <code>import bpy</code> still fails in plain Python, so pytest catches any <code>bpy</code> import in <code>core/</code>.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>No <code>.dockerignore</code></td><td>The image is built only from <code>.devcontainer/</code> and copies nothing, so there is nothing to exclude.</td></tr>
+            <tr><td class="mono">2026-10-16</td><td>Hide Pylance's “could not be resolved from source” warning for the workspace</td><td>It only means the <code>bpy</code> type stubs have no runtime module, which is always true outside Blender.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>Keep this log's source in the repo as <code>docs/devlog.html</code></td><td>The development record is versioned with the code it describes.</td></tr>
           </tbody>
         </table>
