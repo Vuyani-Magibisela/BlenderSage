@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Step 0 is complete. Blender 5.2's reports, screenshot and drawing APIs support the plan, and the recorder design is written into the plan. No extension code exists yet. Next is <strong>Step 1</strong>: the extension skeleton, with a test that enabling and then disabling it leaves no handlers, timers or subscriptions behind.</p>
+      <p>Milestone 1, Steps 0 and 1 are done. The extension installs, shows a BlenderSage tab in the 3D Viewport sidebar, and disables cleanly. Next is <strong>Step 2</strong>: the guidance prototype, a hand-written desk-organiser lesson with an instruction card, highlights and completion checks.</p>
     </div>
   </details>
 
@@ -134,7 +134,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
       <ol class="steps">
         <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
-        <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip wait">In review</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
         <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
@@ -146,6 +146,16 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 1: extension skeleton</h3></div>
+        <ul>
+          <li>Added <code>blender_manifest.toml</code> (id <code>blendersage</code>, version 0.1.0, Blender 5.2.0 or later, GPL-3.0-or-later). Blender's validator accepts it; the built zip holds only the extension's six files.</li>
+          <li>Added <code>blender/lifecycle.py</code>, the one place the extension adds handlers, timers, draw handlers and message-bus subscriptions. Disabling the extension removes everything recorded there.</li>
+          <li>Added a “Lesson” panel on a BlenderSage tab in the 3D Viewport sidebar. It shows “No lesson loaded” for now.</li>
+          <li>Tests: nine in-Blender tests pass on Windows and in the Linux container. Enabling and then disabling leaves no panel, handlers, timers or subscriptions. A separate check installs the built zip through Blender's extension system in a temporary user folder, then enables, disables and uninstalls it cleanly.</li>
+        </ul>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 0: API checks</h3></div>

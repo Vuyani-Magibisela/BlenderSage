@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+schema_version = "1.0.0"
+
+id = "blendersage"
+version = "0.1.0"
+name = "BlenderSage"
+tagline = "Guided lessons inside Blender for teachers and learners"
+maintainer = "Vuyani Magibisela"
+type = "add-on"
+website = "https://github.com/Vuyani-Magibisela/BlenderSage"
+tags = ["User Interface"]
+
+blender_version_min = "5.2.0"
+
+license = ["SPDX:GPL-3.0-or-later"]
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.git/",
+  "/.github/",
+  "/.devcontainer/",
+  "/.vscode/",
+  "/.superpowers/",
+  "/docs/",
+  "/spikes/",
+  "/tests/",
+  "/CLAUDE.md",
+  "/requirements-dev.txt",
+  ".gitignore",
+  "*.zip",
+]
