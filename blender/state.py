@@ -38,6 +38,8 @@ def _object(ob):
         "name": ob.name,
         "type": ob.type,
         "tag": tag if isinstance(tag, str) else None,
+        "location": list(ob.location),
+        "rotation": list(ob.rotation_euler),
         "dimensions": list(ob.dimensions),
         "scale": list(ob.scale),
         "modifiers": [
