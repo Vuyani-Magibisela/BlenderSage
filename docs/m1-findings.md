@@ -153,6 +153,67 @@ These need a person at Windows Blender 5.2. Start Blender normally, enable the e
 | 8 | Disable the extension mid-lesson (Preferences > Add-ons) | Card, box, outline and panel disappear; no errors in the console (Window > Toggle System Console) | Done |
 | 9 | Collapse and expand the card | Collapsed shows only the step title; expanding brings the full card back | Done |
 
+## Step 3: Recorder (checkpoint)
+
+Date: 2026-10-16. Blender 5.2.2 on Windows. Implements plan section 2, "Recorder design".
+
+**What exists:**
+- `core/journal.py`: JSON Lines with a header line. Every entry is flushed to the OS as it is written, so a Blender crash loses nothing already written. `sync()` (fsync) runs on pause and stop. A half-written last line is skipped and flagged, and reopening starts on a fresh line.
+- `core/state_diff.py`: `diff_states` / `apply_diff`. Applying the diffs in order rebuilds the state; this round trip is tested.
+- `blender/recorder/recorder.py`:
+  - A persistent 0.1 s timer collects new `OPERATOR` and `PROPERTY` reports (de-duplicated by `session_uid`) and writes queued entries in order.
+  - Five persistent handlers (`undo_post`, `redo_post`, `load_pre`, `load_post`, `depsgraph_update_post`) only collect reports and queue entries or mark the state as changed.
+  - A 0.25 s idle timer writes a diff at most once per second.
+  - Pause and resume. Continue after a crash. "extension disabled" stop on unregister.
+- `blender/recorder/ui.py`: a "Recorder" panel in the BlenderSage tab: Start, Pause, Resume, Stop, Continue Unfinished Recording, and Open Recordings Folder. Recordings go to the extension's user folder (`bpy.utils.extension_path_user(…, "recordings")`), one folder per recording holding `actions.jsonl` and `state.jsonl`.
+
+**Journal entries:**
+- `actions.jsonl`:
+  - `start` and `recovered`: wall time, Blender session, version and file name;
+  - `report`: `t`, `bs`, `uid`, `type`, `message`;
+  - `undo`, `redo`, `pause`, `resume`, `file_loaded` and `stop` (with a reason).
+- `state.jsonl`:
+  - `snapshot`: a full state, written at start, resume and recovery;
+  - `diff`: the changes since the last snapshot, plus the triggers that caused it.
+- `t` is seconds since the start of that segment and restarts at a `recovered` entry.
+
+### Automated results
+
+- **Unit tests:** 47/47 pass, including 7 for the journal and 5 for the state diff.
+- **Blender tests:** 31/31 pass on Windows and in the Linux container. The 11 recorder tests cover:
+  - headers and the initial snapshot;
+  - reports journaled once, only `OPERATOR`/`PROPERTY`, and none from before the start;
+  - snapshot throttling, and no entry when nothing changed;
+  - pause skipping actions, and a full snapshot on resume;
+  - undo and redo entries;
+  - reports captured at `load_pre` before a file load clears them;
+  - persistent hooks surviving a file load and removed on stop;
+  - disabling mid-recording writing a `stop` entry;
+  - continuing an unfinished recording.
+  Background mode has no reports, so these tests feed stand-in reports.
+
+### GUI check with real reports (`tests/blender/gui_check_recorder.py`)
+
+Phase 1 recorded a scripted 14-second session in a fresh window and then exited without stopping, simulating a crash. Phase 2, in a new Blender, found the unfinished recording, continued it, did one more action and stopped.
+
+- **10 reports recorded, in order:** grab, rotate (`value=0.785398`, typed 45), resize (`(2, 2, 2)`, typed), `duplicate_move`, `subdivision_set`, `editmode_toggle`, `extrude_region_move`, `editmode_toggle`, a grab after save-and-reopen, and a grab after recovery.
+- **Correctly absent:** the cancelled grab and the grab made while paused.
+- **Action journal order:** `start, undo, redo, pause, resume, file_loaded, recovered, stop`, with reports between them. Report IDs increase within each Blender session; the two sessions have different `bs` values. No truncated lines.
+- **The Dimensions X edit typed in the N-panel** produced no report, as Step 0 found. It is in the state journal: a diff at t=8.58 with `Cube.001.dimensions = [3, 4, 4]` and `scale = [1.5, 2, 2]`.
+- **Diffs combine nearby changes:** at a 1 s throttle, one diff can cover several actions. The redo diff at t=6.08 already includes the Subdivision modifier added 0.7 s later. The Step 4 generator must line up diffs with report times, not treat a diff as one action.
+- **Size:** 6.3 KB of actions and 6.4 KB of state for this session, roughly 0.6 KB per action including snapshots.
+
+### Checkpoint: ~10-minute recording by the teacher
+
+To be recorded with the real interface. Steps:
+1. Install `dist/blendersage-0.1.0.zip`.
+2. In the BlenderSage tab, open **Recorder** and click **Start Recording**.
+3. Model for about 10 minutes. Include property edits in the N-panel and Properties editor, undo and redo, a cancelled tool, Pause and Resume, and opening a file.
+4. Click **Stop Recording**.
+5. Use **Open Recordings Folder** to find the journals.
+
+Results: *pending*.
+
 ## Performance timings
 
 | Measurement | Result | Source |
@@ -164,6 +225,7 @@ These need a person at Windows Blender 5.2. Start Blender normally, enable the e
 | Guidance card draw (real lesson) | mean 0.16–0.97 ms, max 2.3 ms, scales 1.0–2.0 | `gui_check_guidance.py`, dev PC |
 | Target box draw | mean 0.14–0.27 ms, max 0.36 ms | same |
 | Editor outline draw | mean 0.05–0.55 ms, max 3.0 ms (first frame) | same |
-| State snapshots | not measured yet (Step 3) | |
+| State snapshot + diff (factory scene, 3–4 objects) | mean 0.58 ms, max 2.5 ms | `gui_check_recorder.py`, dev PC |
+| State snapshots on a 10-minute real session | pending checkpoint recording | |
 
 Timings are from the development PC, not lab hardware. They need repeating on a lab machine.
