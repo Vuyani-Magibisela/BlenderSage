@@ -24,19 +24,22 @@ Do not start Milestone 2 work (full lesson editor, package export/import, polish
 - Package as a Blender **extension** with `blender_manifest.toml`, not a legacy `bl_info` add-on.
 - Licence: **GPL-3.0-or-later**. Every source file carries an SPDX header: `# SPDX-License-Identifier: GPL-3.0-or-later`.
 
-## Proposed repository layout
+## Repository layout
+
+Entries marked *(planned)* don't exist yet.
 
 ```
 blender_manifest.toml
 __init__.py              # register/unregister only
-core/                    # pure Python, no bpy imports (testable without Blender)
+core/                    # (planned) pure Python, no bpy imports (testable without Blender)
   tutorial_schema.py     # lesson/step data model and validation
   draft_generator.py     # merges action + state journals into draft steps
   journal.py             # append-only journal file format
 blender/                 # everything that touches bpy
-  guidance/              # viewport overlay, highlights, sidebar
-  recorder/              # action journal + state snapshots
-  checks/                # completion check evaluators
+  lifecycle.py           # the only place handlers/timers/draw handlers/msgbus are added
+  guidance/              # viewport overlay, highlights, sidebar (sidebar.py exists)
+  recorder/              # (planned) action journal + state snapshots
+  checks/                # (planned) completion check evaluators
 spikes/                  # throwaway API experiments (Milestone 1 step 0)
 tests/
   unit/                  # pytest, no Blender required (core/)
@@ -48,6 +51,8 @@ docs/
 ```
 
 Keep `core/` free of `bpy` so most logic can be unit-tested with plain pytest.
+
+Add every app handler, timer, draw handler and msgbus subscription through `blender/lifecycle.py` (`add_app_handler`, `add_timer`, `add_draw_handler`, `subscribe_rna`). `unregister()` calls `lifecycle.remove_all()`, and `tests/blender/test_register.py` checks nothing is left behind. Anything registered directly with `bpy` bypasses that check.
 
 ## Non-negotiable rules
 
@@ -68,10 +73,11 @@ Commands below use PowerShell; `$B = "D:\Program Files\Blender Foundation\Blende
 - Single unit test: `python -m pytest tests/unit/test_tutorial_schema.py::test_name`
 - Inside Blender (headless):
   `& $B -b --factory-startup --python-exit-code 1 --python tests/blender/run_all.py`
-  (`run_all.py` does not exist yet; when creating it, accept test names after `--` so a single Blender test can run.)
+  Filter by substring of `<file>::<test>` after `--`, e.g. `... run_all.py -- test_register.py::test_enable_disable_twice`. Tests import the repo root as package `blendersage` (`tests/blender/extension_loader.py`) and call `register()`/`unregister()` directly.
 - Run a spike: `& $B -b --factory-startup --python-exit-code 1 --python spikes/<name>.py` (drop `-b` for spikes that need a viewport/UI).
-- Extension packaging (from the repo root, once `blender_manifest.toml` exists):
-  `& $B --command extension validate` and `& $B --command extension build`
+- Extension packaging (from the repo root): `& $B --command extension validate`, and `& $B --command extension build --output-dir <existing folder>` (the folder must already exist). `[build] paths_exclude_pattern` in the manifest keeps docs, tests and spikes out of the zip.
+- Real install/enable/disable/uninstall of the built zip, isolated from the real Blender setup:
+  `$env:BLENDER_USER_RESOURCES = "<new empty temp folder>"; & $B -b --factory-startup --python-exit-code 1 --python tests/blender/check_install.py -- <path to zip>`, then `Remove-Item Env:BLENDER_USER_RESOURCES`. Never run it without that variable, or it installs into the user's real extensions folder.
 - Background mode (`-b`) stores no `WindowManager.reports`, so anything that depends on reports needs a GUI session. GUI spikes and tests run in a fresh window driven by `Window.event_simulate`: `& $B --factory-startup --enable-event-simulate --python spikes/<name>.py` (see `spikes/_gui_runner.py` and the quirks listed in `docs/m1-findings.md`).
 - UI, overlay, and display-scaling behaviour cannot be tested headless. Keep a manual checklist in `docs/m1-findings.md` and record results there.
 
