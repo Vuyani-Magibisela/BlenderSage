@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Groundwork is in place: project instructions, a design spec and plan for the development environment, and a working dev container with headless Blender 5.2.2. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
+      <p>Groundwork is in place: project instructions, a working dev container with headless Blender 5.2.2, and a public repository with the first pull request ready to merge. No extension code exists yet. The next piece of real product work is <strong>Milestone 1, Step 0</strong>: API spikes that confirm action reports, property-edit signals, viewport screenshots and overlay drawing behave as the plan assumes in Blender 5.2.</p>
       <p class="note">Step 0 is a checkpoint. Work stops there and reports findings before any extension skeleton is built.</p>
     </div>
   </details>
@@ -133,7 +133,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
     <summary><h2>Milestone 1 — Prove guidance and recording</h2></summary>
     <div class="panel-body">
       <ol class="steps">
-        <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Built</span><span class="chip wait">VS Code check pending</span></span></li>
+        <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
@@ -147,6 +147,17 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Public repository and first pull request</h3></div>
+        <ul>
+          <li>Created the public repository <a href="https://github.com/Vuyani-Magibisela/BlenderSage">Vuyani-Magibisela/BlenderSage</a>. The default branch is <code>main</code>.</li>
+          <li>Opened <a href="https://github.com/Vuyani-Magibisela/BlenderSage/pull/1">pull request 1</a> to merge the dev container, <code>CLAUDE.md</code> and this log into <code>main</code>.</li>
+          <li>Confirmed in VS Code: <code>bpy.context.</code> autocompletion works inside the container. Pylance's “could not be resolved from source” warning is now hidden, since it only says the stubs have no runtime module.</li>
+          <li>Working split: git runs in the Windows terminal; Python, pytest and headless Blender run in the container terminal.</li>
+        </ul>
+        <div class="commits"><span>bef69cc VS Code setting</span><span>52b5e60 CLAUDE.md</span></div>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-10-03">2026-10-03</time><h3>Dev container built and verified</h3></div>
@@ -209,7 +220,6 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
       <ul style="margin:0;padding-left:1.2rem;display:grid;gap:6px">
         <li>Should <code>docs/CodexPlan.md</code> become <code>docs/plan.md</code>? <code>CLAUDE.md</code> says the plan wins on conflicts, so it needs one agreed location.</li>
         <li>The Milestone 1 brief cites “plan section 3.2” for the recorder design, but in the current plan that material is in section 2. The section references need reconciling.</li>
-        <li>Manual check pending: open the repo in VS Code with “Reopen in Container” and confirm <code>bpy</code> autocompletion works.</li>
       </ul>
     </div>
   </details>
