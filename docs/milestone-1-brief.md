@@ -1,6 +1,6 @@
 # Milestone 1 Brief — Prove Guidance and Recording
 
-Read `CLAUDE.md` and `docs/plan.md` (sections 3 and 6) first.
+Read `CLAUDE.md` and `docs/plan.md` (sections 2 and 4) first.
 
 ## Goal
 
@@ -19,7 +19,7 @@ Write spike scripts in `spikes/` that confirm, in Blender 5.2:
 
 Write findings to `docs/m1-findings.md`.
 
-**Stop here and report** before building anything else. If any assumption in `docs/plan.md` section 3.2 is wrong, propose a design change.
+**Stop here and report** before building anything else. If any recorder or guidance assumption in `docs/plan.md` section 2 is wrong, propose a design change.
 
 ### Step 1 — Extension skeleton
 
@@ -39,13 +39,13 @@ Verify manually: workspace changes, display scaling (100%, 150%, 200%), undo, lo
 
 ### Step 3 — Recorder  ⛔ checkpoint
 
-Implement the action journal and state journal (plan section 3.2): incremental append-only journal on disk, throttled state snapshots of the documented property set, pause/resume, and recovery after Blender is closed unexpectedly.
+Implement the action journal and state journal (plan section 2, "Recorder design"): incremental append-only journal on disk, throttled state snapshots of the documented property set, pause/resume, and recovery after Blender is closed unexpectedly.
 
 **Stop and report** with a short recording (~10 minutes) and its raw journals before building the generator.
 
 ### Step 4 — Draft-step generator
 
-Pure-Python module in `core/draft_generator.py` that merges the two journals into draft steps and review items, following the rules in plan section 3.2. Unit-test it with recorded journal fixtures. A plain text or simple panel view of the drafts is enough; no editor UI yet.
+Pure-Python module in `core/draft_generator.py` that merges the two journals into draft steps and review items, following the merge rules in plan section 2, "Recorder design". Unit-test it with recorded journal fixtures. A plain text or simple panel view of the drafts is enough; no editor UI yet.
 
 ### Step 5 — Decision-gate evidence
 

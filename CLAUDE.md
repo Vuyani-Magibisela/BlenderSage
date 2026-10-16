@@ -12,7 +12,7 @@ The full product plan is in `docs/plan.md`. Read it before starting any mileston
 
 ## Current phase
 
-**Milestone 1 — Prove guidance and recording.** See `docs/milestone-1-brief.md`. `docs/plan.md` does not exist yet; the product plan currently lives at `docs/CodexPlan.md` — confirm with the user before treating it as `docs/plan.md`.
+**Milestone 1 — Prove guidance and recording.** See `docs/milestone-1-brief.md`. Step 0 (API verification) results are in `docs/m1-findings.md`.
 
 Do not start Milestone 2 work (full lesson editor, package export/import, polished UI) or any LMS integration until Milestone 1's decision gate is recorded in `docs/m1-findings.md`.
 
@@ -72,6 +72,7 @@ Commands below use PowerShell; `$B = "D:\Program Files\Blender Foundation\Blende
 - Run a spike: `& $B -b --factory-startup --python-exit-code 1 --python spikes/<name>.py` (drop `-b` for spikes that need a viewport/UI).
 - Extension packaging (from the repo root, once `blender_manifest.toml` exists):
   `& $B --command extension validate` and `& $B --command extension build`
+- Background mode (`-b`) stores no `WindowManager.reports`, so anything that depends on reports needs a GUI session. GUI spikes and tests run in a fresh window driven by `Window.event_simulate`: `& $B --factory-startup --enable-event-simulate --python spikes/<name>.py` (see `spikes/_gui_runner.py` and the quirks listed in `docs/m1-findings.md`).
 - UI, overlay, and display-scaling behaviour cannot be tested headless. Keep a manual checklist in `docs/m1-findings.md` and record results there.
 
 ### Dev container
