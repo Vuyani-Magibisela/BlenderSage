@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests pass. Next is the hands-on checklist, then <strong>Step 3</strong>: the recorder, which is a checkpoint.</p>
+      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. Next is <strong>Step 3</strong>: the recorder, which ends at a checkpoint with a short recording for review.</p>
     </div>
   </details>
 
@@ -135,7 +135,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
         <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip done">Done</span></span></li>
-        <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip wait">Hands-on checks pending</span></span></li>
+        <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
         <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
@@ -156,7 +156,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
           <li>If the target object can't be found, or several objects match, the learner selects it and clicks <strong>Use selected</strong>. Nothing is guessed, and no screen positions are stored.</li>
           <li>Testing caught a lesson mistake: bevelling before applying the scale gives uneven bevels. The lesson now includes an “Apply the scale” step.</li>
           <li>Tests: 35 unit tests and 20 in-Blender tests pass. The real install check passes. Card drawing averages under 1 ms (2.3 ms at worst) at interface scales 1.0 to 2.0.</li>
-          <li>Waiting on the 9-item hands-on checklist in <code>docs/m1-findings.md</code>.</li>
+          <li>Hands-on checklist: all 9 checks passed in Windows Blender 5.2. They covered following the lesson by hand, switching workspaces, display scaling at 100/150/200%, undo after Next, Back and Next, opening another file, renaming the cube, disabling mid-lesson, and collapsing the card. Merged into <code>main</code>.</li>
         </ul>
       </article>
 

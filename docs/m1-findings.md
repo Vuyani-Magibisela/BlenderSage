@@ -137,19 +137,21 @@ Date: 2026-10-16. Blender 5.2.2 on Windows.
 
 ### Manual guidance checklist
 
+Run by the project owner on 2026-10-16 in Windows Blender 5.2: all 9 checks passed.
+
 These need a person at Windows Blender 5.2. Start Blender normally, enable the extension from the built zip (Edit > Preferences > Get Extensions > Install from Disk), press N in the 3D Viewport, open the **BlenderSage** tab and click **Start Example Lesson**.
 
 | # | Check | Expected | Result |
 |---|---|---|---|
-| 1 | Follow all 8 steps with the mouse and keyboard | Each step turns "Done" by itself once the model matches, except step 6, which needs Confirm. Next is only available after Done. | Not run |
-| 2 | Change workspace (Modeling, Shading, back to Layout) mid-lesson | Card and target box appear in every 3D Viewport; sidebar state is unchanged | Not run |
-| 3 | Display scaling 100%, 150%, 200% (Preferences > Interface > Resolution Scale, and Windows display scaling) | Card text readable and clear of the toolbar; no clipped text in the sidebar | Not run |
-| 4 | Undo (Ctrl+Z) after Next | Undoes your last modelling action, not the navigation; the lesson re-checks the step | Not run |
-| 5 | Back, then Next again | The model is unchanged; completed steps stay completed | Not run |
-| 6 | Open a different file mid-lesson (File > Open) | Blender asks to save as usual. The lesson keeps running and shows "Waiting for the organiser box" if there is no cube. | Not run |
-| 7 | Rename the cube to "Box" | The step asks you to select the organiser and click **Use selected**; after that it is found again | Not run |
-| 8 | Disable the extension mid-lesson (Preferences > Add-ons) | Card, box, outline and panel disappear; no errors in the console (Window > Toggle System Console) | Not run |
-| 9 | Collapse and expand the card | Collapsed shows only the step title; expanding brings the full card back | Not run |
+| 1 | Follow all 8 steps with the mouse and keyboard | Each step turns "Done" by itself once the model matches, except step 6, which needs Confirm. Next is only available after Done. | Done |
+| 2 | Change workspace (Modeling, Shading, back to Layout) mid-lesson | Card and target box appear in every 3D Viewport; sidebar state is unchanged | Done |
+| 3 | Display scaling 100%, 150%, 200% (Preferences > Interface > Resolution Scale, and Windows display scaling) | Card text readable and clear of the toolbar; no clipped text in the sidebar | Done |
+| 4 | Undo (Ctrl+Z) after Next | Undoes your last modelling action, not the navigation; the lesson re-checks the step | Done |
+| 5 | Back, then Next again | The model is unchanged; completed steps stay completed | Done |
+| 6 | Open a different file mid-lesson (File > Open) | Blender asks to save as usual. The lesson keeps running and shows "Waiting for the organiser box" if there is no cube. | Done |
+| 7 | Rename the cube to "Box" | The step asks you to select the organiser and click **Use selected**; after that it is found again | Done |
+| 8 | Disable the extension mid-lesson (Preferences > Add-ons) | Card, box, outline and panel disappear; no errors in the console (Window > Toggle System Console) | Done |
+| 9 | Collapse and expand the card | Collapsed shows only the step title; expanding brings the full card back | Done |
 
 ## Performance timings
 
