@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Steps 0 and 1 are done. The extension installs, shows a BlenderSage tab in the 3D Viewport sidebar, and disables cleanly. Next is <strong>Step 2</strong>: the guidance prototype, a hand-written desk-organiser lesson with an instruction card, highlights and completion checks.</p>
+      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. Next is <strong>Step 3</strong>: the recorder, which ends at a checkpoint with a short recording for review.</p>
     </div>
   </details>
 
@@ -134,8 +134,8 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
       <ol class="steps">
         <li><span class="n">Prep</span><span class="t">Development environment<small>Dev container with Python 3.13, headless Blender 5.2.2, pytest, bpy stubs</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
-        <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip wait">In review</span></span></li>
-        <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip done">Done</span></span></li>
+        <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip todo">Not started</span></span></li>
         <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
@@ -146,6 +146,19 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 2: guidance prototype</h3></div>
+        <ul>
+          <li>An 8-step desk-organiser lesson: size the box to 30 × 20 × 10 cm, apply the scale, bevel it, open the top, give the walls thickness, and add a Wood material.</li>
+          <li>The lesson shows up as an instruction card in the 3D Viewport (it can be collapsed and stays clear of the toolbar), an orange box around the target object, an outline on the editor to use, and the full step in the sidebar.</li>
+          <li>Steps complete themselves when the model matches, checked by mode, dimensions, scale, modifier settings and material. Mesh edits use manual confirmation. Back, Next and Skip never change the model or create undo steps.</li>
+          <li>If the target object can't be found, or several objects match, the learner selects it and clicks <strong>Use selected</strong>. Nothing is guessed, and no screen positions are stored.</li>
+          <li>Testing caught a lesson mistake: bevelling before applying the scale gives uneven bevels. The lesson now includes an “Apply the scale” step.</li>
+          <li>Tests: 35 unit tests and 20 in-Blender tests pass. The real install check passes. Card drawing averages under 1 ms (2.3 ms at worst) at interface scales 1.0 to 2.0.</li>
+          <li>Hands-on checklist: all 9 checks passed in Windows Blender 5.2. They covered following the lesson by hand, switching workspaces, display scaling at 100/150/200%, undo after Next, Back and Next, opening another file, renaming the cube, disabling mid-lesson, and collapsing the card. Merged into <code>main</code>.</li>
+        </ul>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 1: extension skeleton</h3></div>
@@ -230,6 +243,8 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
             <tr><td class="mono">2026-10-03</td><td>Container Python is 3.13, the same version Blender bundles</td><td><code>core/</code> is unit-tested on the interpreter it will actually run on.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>Keep <code>fake-bpy-module</code> as type-only stubs</td><td>Editors get <code>bpy</code> autocompletion, but <code>import bpy</code> still fails in plain Python, so pytest catches any <code>bpy</code> import in <code>core/</code>.</td></tr>
             <tr><td class="mono">2026-10-03</td><td>No <code>.dockerignore</code></td><td>The image is built only from <code>.devcontainer/</code> and copies nothing, so there is nothing to exclude.</td></tr>
+            <tr><td class="mono">2026-10-16</td><td>Checks read a plain snapshot of the scene, and targets resolve by tag, then by type and name prefix, never by guessing</td><td>The checks stay testable without Blender. The recorder's state journal can reuse the same snapshot. Missing or ambiguous targets ask the learner.</td></tr>
+            <tr><td class="mono">2026-10-16</td><td>Navigation buttons create no undo steps</td><td>Ctrl+Z after Next must undo the learner's modelling, not the navigation.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Recorder design added to the plan: an action journal from reports and a state journal of throttled snapshots, plus initial merge rules</td><td>Approved at the Step 0 checkpoint; the brief's journal rules had no source until now.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Record actions from <code>WindowManager.reports</code>, not the operator history</td><td>Undo clears the operator history and it skips operators called from scripts. Reports keep every action with a session-unique ID.</td></tr>
             <tr><td class="mono">2026-10-16</td><td>Renamed the product plan to <code>docs/plan.md</code> and fixed the brief's section references</td><td><code>CLAUDE.md</code> treats the plan as the authority, so it needs the expected name and accurate references.</td></tr>

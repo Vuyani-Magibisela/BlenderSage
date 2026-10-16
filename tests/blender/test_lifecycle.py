@@ -49,6 +49,31 @@ def test_remove_all_clears_msgbus_subscriptions():
     assert lifecycle.active_counts()["msgbus_owners"] == 0
 
 
+def test_remove_takes_away_only_the_given_hooks():
+    lifecycle = load_extension().blender.lifecycle
+
+    def keep(*_args):
+        return None
+
+    def tick():
+        return 1.0
+
+    kept = lifecycle.add_app_handler("load_post", keep)
+    removed = [
+        lifecycle.add_app_handler("load_post", _noop),
+        lifecycle.add_timer(tick, first_interval=10.0),
+        lifecycle.add_draw_handler(bpy.types.SpaceView3D, _noop, (), "WINDOW", "POST_PIXEL"),
+        lifecycle.subscribe_rna((bpy.types.Object, "location"), _noop),
+    ]
+    lifecycle.remove(*removed)
+    assert _noop not in bpy.app.handlers.load_post
+    assert keep in bpy.app.handlers.load_post
+    assert not bpy.app.timers.is_registered(tick)
+    assert lifecycle.active_counts() == {"app_handlers": 1, "timers": 0, "draw_handlers": 0, "msgbus_owners": 0}
+    lifecycle.remove(kept)
+    assert keep not in bpy.app.handlers.load_post
+
+
 def test_remove_all_is_safe_to_call_twice():
     lifecycle = load_extension().blender.lifecycle
     lifecycle.add_app_handler("load_post", _noop)

@@ -31,15 +31,19 @@ Entries marked *(planned)* don't exist yet.
 ```
 blender_manifest.toml
 __init__.py              # register/unregister only
-core/                    # (planned) pure Python, no bpy imports (testable without Blender)
-  tutorial_schema.py     # lesson/step data model and validation
-  draft_generator.py     # merges action + state journals into draft steps
-  journal.py             # append-only journal file format
+core/                    # pure Python, no bpy imports (testable without Blender)
+  tutorial_schema.py     # lesson data model and strict validation (schema_version 1)
+  targets.py             # semantic target -> one object, or missing/ambiguous
+  checks.py              # completion checks evaluated on a scene snapshot
+  session.py             # next/back/skip/confirm; never touches the scene
+  draft_generator.py     # (planned) merges action + state journals into draft steps
+  journal.py             # (planned) append-only journal file format
 blender/                 # everything that touches bpy
   lifecycle.py           # the only place handlers/timers/draw handlers/msgbus are added
-  guidance/              # viewport overlay, highlights, sidebar (sidebar.py exists)
+  state.py               # read-only scene snapshot (dict) consumed by core/checks.py
+  guidance/              # runtime (active lesson + timer), overlay, operators, sidebar
   recorder/              # (planned) action journal + state snapshots
-  checks/                # (planned) completion check evaluators
+lessons/                 # bundled example lesson JSON (ships in the extension zip)
 spikes/                  # throwaway API experiments (Milestone 1 step 0)
 tests/
   unit/                  # pytest, no Blender required (core/)
@@ -50,7 +54,7 @@ docs/
   m1-findings.md
 ```
 
-Keep `core/` free of `bpy` so most logic can be unit-tested with plain pytest.
+Keep `core/` free of `bpy` so most logic can be unit-tested with plain pytest. Checks and target resolution take the plain-dict snapshot from `blender/state.py`, never live bpy objects; a new check type needs a schema entry in `core/tutorial_schema.py`, an evaluator in `core/checks.py`, and any new snapshot field in `blender/state.py`.
 
 Add every app handler, timer, draw handler and msgbus subscription through `blender/lifecycle.py` (`add_app_handler`, `add_timer`, `add_draw_handler`, `subscribe_rna`). `unregister()` calls `lifecycle.remove_all()`, and `tests/blender/test_register.py` checks nothing is left behind. Anything registered directly with `bpy` bypasses that check.
 
@@ -69,11 +73,12 @@ Add every app handler, timer, draw handler and msgbus subscription through `blen
 
 Commands below use PowerShell; `$B = "D:\Program Files\Blender Foundation\Blender 5.2\blender.exe"`.
 
-- Pure logic: `python -m pytest tests/unit` (pytest is not installed yet: `python -m pip install pytest`)
-- Single unit test: `python -m pytest tests/unit/test_tutorial_schema.py::test_name`
+- Pure logic, in the dev container: `docker exec blendersage-dev python -m pytest tests/unit` (Windows system Python has no pytest). `tests/unit/pytest.ini` makes `tests/unit` the rootdir; without it pytest imports the repo-root `__init__.py`, which needs bpy.
+- Single unit test: `docker exec blendersage-dev python -m pytest tests/unit/test_checks.py::test_mode_check`
 - Inside Blender (headless):
   `& $B -b --factory-startup --python-exit-code 1 --python tests/blender/run_all.py`
-  Filter by substring of `<file>::<test>` after `--`, e.g. `... run_all.py -- test_register.py::test_enable_disable_twice`. Tests import the repo root as package `blendersage` (`tests/blender/extension_loader.py`) and call `register()`/`unregister()` directly.
+  Filter by substring of `<file>::<test>` after `--`, e.g. `... run_all.py -- test_register.py::test_enable_disable_twice`. The runner resets to factory settings before each test. Tests import the repo root as package `blendersage` (`tests/blender/extension_loader.py`) and call `register()`/`unregister()` directly.
+- Guidance GUI check (screenshots at UI scale 1.0/1.5/2.0 and draw timings to `spikes/out/`): `& $B --factory-startup --enable-event-simulate --python tests/blender/gui_check_guidance.py`
 - Run a spike: `& $B -b --factory-startup --python-exit-code 1 --python spikes/<name>.py` (drop `-b` for spikes that need a viewport/UI).
 - Extension packaging (from the repo root): `& $B --command extension validate`, and `& $B --command extension build --output-dir <existing folder>` (the folder must already exist). `[build] paths_exclude_pattern` in the manifest keeps docs, tests and spikes out of the zip.
 - Real install/enable/disable/uninstall of the built zip, isolated from the real Blender setup:

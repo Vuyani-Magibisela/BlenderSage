@@ -92,9 +92,66 @@ The plan (section 2) says: "Blender 5.2's action reports and screenshot APIs sup
 - Hover a field in one event-loop tick and click it in a later one.
 - Screen positions found for spikes are for this test only; the extension never stores them (CLAUDE.md rule 5).
 
-## Manual guidance checklist (Step 2)
+## Step 2: Guidance prototype
 
-Not started. Covers workspace changes, display scaling at 100/150/200%, undo, loading a different file mid-lesson, and disabling the extension mid-lesson.
+Date: 2026-10-16. Blender 5.2.2 on Windows.
+
+**What exists:**
+- `lessons/desk_organiser.json`: 8 steps, schema version 1. It ships inside the extension.
+- `core/tutorial_schema.py` (strict validation), `core/targets.py`, `core/checks.py` and `core/session.py`: pure Python.
+- `blender/state.py`: read-only scene snapshot.
+- `blender/guidance/`:
+  - `runtime.py`: one active lesson, evaluated by a persistent 0.5 s timer that only reads.
+  - `overlay.py`: instruction card, target box, editor outline.
+  - `operators.py`: sidebar buttons. Back, Next, Skip and Confirm push no undo step.
+  - `sidebar.py`: the lesson panel.
+
+**Check types:** `object_exists`, `mode`, `dimensions` and `scale` (with tolerance), `modifier` (type plus settings with tolerance), and `material_assigned` (optional name prefix).
+
+**Lesson change found during testing:** the first version added a Bevel to a cube whose scale had not been applied. Blender showed "Active object has non-uniform scale", and the bevel would be uneven. The lesson now has an "Apply the scale" step, checked by `scale`. To stay at 8 steps, the separate Edit Mode step was merged into "Delete the top face".
+
+### Automated results
+
+- **Unit tests:** 35/35 pass (`pytest tests/unit` in the dev container, Python 3.13). They cover:
+  - schema rejection with paths: unknown keys, unknown check types, dangling targets, NaN, duplicate ids;
+  - target resolution: tag beats name rule; ambiguous and missing are never guessed;
+  - every check type;
+  - navigation: Next needs completion, Skip leaves the step incomplete, Confirm only where allowed.
+- **Blender tests:** 20/20 pass headless on Windows and in the Linux container. They include:
+  - a walk through all 8 lesson steps on a real scene;
+  - starting and stopping a lesson removing exactly its timer and draw handlers;
+  - disabling the extension mid-lesson leaving nothing behind;
+  - navigation leaving the scene snapshot unchanged;
+  - the lesson surviving `read_homefile`, with its target reported missing in an empty file;
+  - **Use selected** tagging the target.
+- **Install check (`tests/blender/check_install.py`):** the built zip (19 KB, lesson included) installs, starts the bundled lesson, disables mid-lesson with no panel or handlers left, and uninstalls.
+- **GUI check (`tests/blender/gui_check_guidance.py`):** screenshots of steps 1, 2 and 4 at UI scale 1.0, 1.5 and 2.0, of the ambiguous-target state, after **Use selected**, and of the collapsed card.
+  - The card stays clear of the toolbar at every scale.
+  - The Properties editor is outlined for Properties steps.
+  - With two cubes, both get candidate boxes, and the card and sidebar ask the learner to select one and click **Use selected**.
+  - After unregistering, nothing is left in the registry.
+
+**Known limits:**
+- The target box is drawn from the object's bounding box. At 30 × 20 × 10 cm it is small at the default zoom; the "Where" path and the hints carry the guidance there.
+- Saving `Window.screenshot()` pixels as a PNG reference image (open since Step 0) is not needed for this lesson and is still untested.
+
+### Manual guidance checklist
+
+Run by the project owner on 2026-10-16 in Windows Blender 5.2: all 9 checks passed.
+
+These need a person at Windows Blender 5.2. Start Blender normally, enable the extension from the built zip (Edit > Preferences > Get Extensions > Install from Disk), press N in the 3D Viewport, open the **BlenderSage** tab and click **Start Example Lesson**.
+
+| # | Check | Expected | Result |
+|---|---|---|---|
+| 1 | Follow all 8 steps with the mouse and keyboard | Each step turns "Done" by itself once the model matches, except step 6, which needs Confirm. Next is only available after Done. | Done |
+| 2 | Change workspace (Modeling, Shading, back to Layout) mid-lesson | Card and target box appear in every 3D Viewport; sidebar state is unchanged | Done |
+| 3 | Display scaling 100%, 150%, 200% (Preferences > Interface > Resolution Scale, and Windows display scaling) | Card text readable and clear of the toolbar; no clipped text in the sidebar | Done |
+| 4 | Undo (Ctrl+Z) after Next | Undoes your last modelling action, not the navigation; the lesson re-checks the step | Done |
+| 5 | Back, then Next again | The model is unchanged; completed steps stay completed | Done |
+| 6 | Open a different file mid-lesson (File > Open) | Blender asks to save as usual. The lesson keeps running and shows "Waiting for the organiser box" if there is no cube. | Done |
+| 7 | Rename the cube to "Box" | The step asks you to select the organiser and click **Use selected**; after that it is found again | Done |
+| 8 | Disable the extension mid-lesson (Preferences > Add-ons) | Card, box, outline and panel disappear; no errors in the console (Window > Toggle System Console) | Done |
+| 9 | Collapse and expand the card | Collapsed shows only the step title; expanding brings the full card back | Done |
 
 ## Performance timings
 
@@ -104,6 +161,9 @@ Not started. Covers workspace changes, display scaling at 100/150/200%, undo, lo
 | First draw of a new shader | 80 ms, once | same |
 | `Window.screenshot()` full window | 5–6 ms | same |
 | `screenshot_area` to PNG | 53–66 ms | same |
+| Guidance card draw (real lesson) | mean 0.16–0.97 ms, max 2.3 ms, scales 1.0–2.0 | `gui_check_guidance.py`, dev PC |
+| Target box draw | mean 0.14–0.27 ms, max 0.36 ms | same |
+| Editor outline draw | mean 0.05–0.55 ms, max 3.0 ms (first frame) | same |
 | State snapshots | not measured yet (Step 3) | |
 
 Timings are from the development PC, not lab hardware. They need repeating on a lab machine.
