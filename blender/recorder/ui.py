@@ -2,9 +2,11 @@
 """Recorder panel and buttons in the BlenderSage sidebar tab (teacher authoring)."""
 import bpy
 
-from . import recorder
+from . import drafts, recorder
 
 _unfinished = {"ids": None}  # cached so panel redraws do not read journal files
+_last_drafts = {"id": None, "result": None}  # shown in the panel after Make Draft Steps
+PANEL_ITEMS = 25
 
 
 def unfinished():
@@ -107,6 +109,45 @@ class BLENDERSAGE_OT_record_open_folder(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class BLENDERSAGE_OT_record_make_drafts(bpy.types.Operator):
+    bl_idname = "blendersage.record_make_drafts"
+    bl_label = "Make Draft Steps"
+    bl_description = ("Turn the most recent finished recording into draft steps and review items "
+                      "(saved as drafts.txt and drafts.json in its folder)")
+
+    @classmethod
+    def poll(cls, context):
+        return not recorder.is_recording()
+
+    def execute(self, context):
+        rec_id = drafts.latest_finished()
+        if rec_id is None:
+            self.report({"WARNING"}, "No finished recording yet")
+            return {"CANCELLED"}
+        result = drafts.make_drafts(rec_id)
+        _last_drafts.update(id=rec_id, result=result)
+        s = result.stats
+        self.report({"INFO"}, f"{rec_id}: {s['drafts']} drafts, {s['review']} to review, {s['ignored']} not included")
+        return {"FINISHED"}
+
+
+def _draw_drafts(layout):
+    result = _last_drafts["result"]
+    if result is None:
+        return
+    box = layout.box()
+    s = result.stats
+    box.label(text=f"Drafts for {_last_drafts['id']}")
+    box.label(text=f"{s['drafts']} drafts, {s['review']} to review, {s['ignored']} not included")
+    col = box.column(align=True)
+    for n, item in enumerate(result.items[:PANEL_ITEMS], 1):
+        on = f" [{', '.join(item.objects)}]" if item.objects else ""
+        col.label(text=f"{n}. {item.title}{on}", icon="CHECKMARK" if item.status == "draft" else "ERROR")
+    if len(result.items) > PANEL_ITEMS:
+        col.label(text=f"... {len(result.items) - PANEL_ITEMS} more in drafts.txt")
+    box.label(text="Full details: drafts.txt in the recording folder")
+
+
 class BLENDERSAGE_PT_recorder(bpy.types.Panel):
     bl_label = "Recorder"
     bl_space_type = "VIEW_3D"
@@ -122,7 +163,9 @@ class BLENDERSAGE_PT_recorder(bpy.types.Panel):
             if unfinished():
                 layout.label(text="An earlier recording did not stop normally.", icon="ERROR")
                 layout.operator("blendersage.record_continue", icon="RECOVER_LAST")
+            layout.operator("blendersage.record_make_drafts", icon="TEXT")
             layout.operator("blendersage.record_open_folder", icon="FILE_FOLDER")
+            _draw_drafts(layout)
             return
         state = "Paused" if info["paused"] else "Recording"
         layout.label(text=f"{state}: {info['recording_id']}", icon="PAUSE" if info["paused"] else "REC")
@@ -142,6 +185,7 @@ classes = (
     BLENDERSAGE_OT_record_resume,
     BLENDERSAGE_OT_record_stop,
     BLENDERSAGE_OT_record_open_folder,
+    BLENDERSAGE_OT_record_make_drafts,
     BLENDERSAGE_PT_recorder,
 )
 _register, _unregister = bpy.utils.register_classes_factory(classes)
@@ -149,6 +193,7 @@ _register, _unregister = bpy.utils.register_classes_factory(classes)
 
 def register():
     _forget_unfinished()
+    _last_drafts.update(id=None, result=None)
     _register()
 
 
