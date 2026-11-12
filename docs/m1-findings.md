@@ -236,6 +236,65 @@ Results (recording `20261112-155649-285f`, 2026-11-12, 10 min 14 s, real interfa
 - **Snapshot timings were not saved** in this recording, so the performance row stays open. Fix: the `stop` entry now includes `snapshot_timings` (`count`, `mean_ms`, `max_ms`). The next real recording will fill the row.
 - **Packaging fix:** two test `.blend` files saved in the repo root had been built into the zip (221 KB). `*.blend` and `*.blend1` are now excluded in the manifest and `.gitignore`, and the zip is back to 24 KB.
 
+## Step 4: Draft-step generator
+
+`core/draft_generator.py` turns the two journals into an ordered list of **draft steps** and **review items**, plus a **not included** list that gives a reason for everything left out. Nothing is dropped silently.
+
+- **Where to see it:** in Blender, **Recorder > Make Draft Steps** processes the newest finished recording. It writes `drafts.txt` (readable) and `drafts.json` (for the Milestone 2 editor) next to the journals and lists the items in the panel.
+- **Safety:** report messages are parsed with `ast` and `literal_eval` only. Values that refer to Blender data, such as `bpy.data.objects['Sphere']`, are kept as text references. Anything else that isn't a plain value makes the report unreadable, and it becomes a review item. A unit test confirms that `__import__(...)` calls are rejected.
+
+### How the plan's merge rules were implemented
+
+1. **One report per action:**
+   - Reports are de-duplicated by Blender session and `uid`.
+   - Repeated edits of the same property path on the same object, with nothing in between (selection clicks don't count), collapse to the last value. The earlier values go to "replaced by a later value".
+2. **State changes no action explains become drafts.** A diff field is explained by a report that changes that field (for example, `transform.resize` changes scale and dimensions) and that falls from 1.5 s before the diff to 0.5 s after it. The window comes from the recorder's timing: the 1 s throttle, the 0.25 s tick, and diffs that can come before the report while a tool is running. In addition:
+   - Diffs taken during a long interactive tool are explained by the next report if it comes within 10 s.
+   - Back-to-back unexplained changes to the same object merge.
+   - A change that ends where it started (for example, a tool cancelled after the viewport updated) goes to "changed and changed back".
+   - A change to selection only is not a step, but it stays on the undo stack, because a selection click is an undo step in Blender.
+3. **Undo and redo:**
+   - The generator keeps a model of the undo stack: drafts, review items and selection changes.
+   - An undo pops the last entry. It counts as **confirmed** only when the undo's own diff changes a field that entry affects.
+   - Undone work that is never redone is left out ("undone") when confirmed. Otherwise it stays as a review item that says it was probably undone.
+   - Undo followed by redo cancels out.
+   - A diff after a redo can also contain a later action. The rest of that diff is still explained by reports made after the event.
+4. **Unsupported or unreadable reports become review items:**
+   - unknown operators (including other add-ons);
+   - properties outside objects, modifiers and materials (for example, scene tool settings);
+   - messages that fail to parse.
+
+   Interface-only properties go to "interface only": sidebar tabs, file browser folders, and properties-editor tabs.
+5. **Cancelled tools** have no report, so they are absent.
+
+Also handled:
+- **Pause:** changes made while paused are summarised under "not included".
+- **File loads:** a file load is a review item, and the loaded scene is not drafted.
+- **Crash recovery:** a recovered session is a review item and starts a new time segment, because time restarts at 0.
+
+### Results on the recorded fixtures (`tests/unit/fixtures/recordings/`)
+
+- **The teacher's 10-minute recording** (local folder path redacted) gives 15 drafts, 1 review item and 6 not included:
+  - every modelling action is a draft, in order;
+  - both undone location edits are left out, each confirmed by its undo diff;
+  - the undo and redo of the second extrude cancel out;
+  - the four interface reports are filtered;
+  - the file load is the only review item.
+- **The Step 3 GUI-check recording** (with crash recovery) gives 11 drafts and 2 review items:
+  - the Dimensions edit with no report becomes the draft "Set Cube.001 dimensions to (3, 4, 4)";
+  - the undone and redone duplicate stays;
+  - recovery is flagged.
+- **Draft wording:** drafts carry check hints (mode, dimensions, scale, modifier, object exists, material) from the state changes attributed to them. Titles read like "Bevel (width 0.2)", "Scale by 0.7", "Enter Edit Mode" and "Set Location Z of Sphere to 1.25".
+- **Tests:** 28 unit tests for the generator (75 in total), and 2 in-Blender tests that record, stop and make drafts (33 in total). They pass in the container and on Windows. `core/` still runs under Windows Python 3.11.
+- **GUI check:** `tests/blender/gui_check_drafts.py` shows the list in the Recorder panel. Long titles are cut off in the panel; the full text is in `drafts.txt`.
+
+### Known limits (to measure in Step 5)
+
+- **Edit-mode mesh edits** only reach the state journal when they change the object's dimensions. Bevel and inset rely on their reports alone, and their undo cannot be confirmed, so it becomes a review item.
+- **The object named on an action** comes from the changes attributed to it. Without such changes, it falls back to the selection at report time, which can lag by up to a second. In the GUI-check recording, the Subdivision Surface added right after a redo is listed on `Cube` when it went to `Cube.001`.
+- **Undo matching works at field level, not object level.** An undo that reverts something untracked, such as a mesh selection, while the popped step changed tracked fields, is flagged for review rather than guessed.
+- **Not yet drafted:** location and rotation have no check type in the lesson schema, so moves and rotations have no check hints. Viewport shading, snapping and similar settings are review items.
+
 ## Performance timings
 
 | Measurement | Result | Source |

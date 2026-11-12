@@ -70,6 +70,8 @@ Based on the Milestone 1 Step 0 evidence in `docs/m1-findings.md` (Blender 5.2.2
 4. Reports for unsupported operators, actions from other add-ons or scripts (which Blender reports the same way as user actions), and anything that fails to parse become review items, never silent drops.
 5. Cancelled tools leave no report and are correctly absent.
 
+Step 4 implemented these in `core/draft_generator.py`. The timing windows, the undo-stack model and the known limits are in `docs/m1-findings.md` ("Step 4: Draft-step generator").
+
 ### Learner guidance
 
 Provide a native sidebar for lesson controls and a collapsible instruction overlay inside the 3D viewport.
