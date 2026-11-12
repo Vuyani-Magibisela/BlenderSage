@@ -100,6 +100,8 @@ From the Windows host (e.g. Claude Code), with the container running:
 
 If the container is stopped, `docker exec` fails with `Error response from daemon: container <id> is not running`. Start it (`docker start blendersage-dev`) rather than falling back to Windows tools without saying so.
 
+If it is missing entirely (e.g. a VS Code "Rebuild Container" removed it and the re-create failed), recreate it with the `npx ... up` command above. VS Code's re-create fails with `accessing specified distro mount service: stat /run/guest-services/distro-services/ubuntu.sock` when it tries to mount the WSLg Wayland socket from a WSL distro Docker Desktop isn't integrated with; the user's VS Code settings have `"dev.containers.mountWaylandSocket": false` to avoid that.
+
 Limits:
 - The container can't test UI, overlay, display scaling or Windows behaviour. Use the Windows Blender 5.2 install and the manual checklist for those.
 - The stubs are type-only (`bpy-stubs`), so `import bpy` fails in the container's plain Python. That is intended: a `bpy` import in `core/` makes pytest fail.
