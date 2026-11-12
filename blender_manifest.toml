@@ -17,6 +17,8 @@ license = ["SPDX:GPL-3.0-or-later"]
 [build]
 paths_exclude_pattern = [
   "__pycache__/",
+  "/.pytest_cache/",
+  "/dist/",
   "/.git/",
   "/.github/",
   "/.devcontainer/",
@@ -29,4 +31,6 @@ paths_exclude_pattern = [
   "/requirements-dev.txt",
   ".gitignore",
   "*.zip",
+  "*.blend",
+  "*.blend1",
 ]

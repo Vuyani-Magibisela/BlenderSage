@@ -4,7 +4,8 @@
 Checks look at results (what the scene is), not at the sequence of clicks.
 The snapshot shape is produced by blender/state.py:
     {"mode", "active", "selected", "objects": [{"name", "type", "tag",
-      "dimensions", "scale", "modifiers": [{"type", "name", "settings"}], "materials"}]}
+      "location", "rotation", "dimensions", "scale",
+      "modifiers": [{"type", "name", "settings"}], "materials"}]}
 """
 from dataclasses import dataclass, field
 
