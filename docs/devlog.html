@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. <strong>Step 3</strong>, the recorder, is built and tested. The teacher's 10-minute checkpoint recording has been made and reviewed. Step 3 is waiting for the owner's approval before Step 4, the draft-step generator.</p>
+      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. <strong>Step 3</strong>, the recorder, is approved and merged. <strong>Step 4</strong>, the draft-step generator, is built: a finished recording becomes a list of draft steps and review items in the Recorder panel and in <code>drafts.txt</code>. Next is Step 5, the 60–90-minute desk-organiser recording for the decision gate.</p>
     </div>
   </details>
 
@@ -136,8 +136,8 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip done">Done</span></span></li>
-        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip wait">Recording reviewed, awaiting approval</span></span></li>
-        <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
+        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
+        <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip wait">Built, in review</span></span></li>
         <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
       </ol>
     </div>
@@ -146,6 +146,26 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-11-12">2026-11-12</time><h3>Milestone 1, Step 4: draft-step generator</h3></div>
+        <ul>
+          <li>Step 3 was approved and merged.</li>
+          <li><strong>Make Draft Steps</strong> in the Recorder panel turns the newest finished recording into an ordered list of draft steps and review items. It also lists what was left out and why, so nothing disappears silently. The results are saved as <code>drafts.txt</code> and <code>drafts.json</code> beside the journals.</li>
+          <li>It applies the plan's five merge rules:
+            <ul>
+              <li>one action per report, with repeated edits of a property collapsed to the last value;</li>
+              <li>scene changes no action explains become drafts, such as a typed Dimensions edit;</li>
+              <li>an undo counts only when the scene change confirms which step it reverted, and an unclear undo becomes a review item;</li>
+              <li>unsupported tools and unreadable reports become review items;</li>
+              <li>cancelled tools are absent.</li>
+            </ul>
+          </li>
+          <li>On the teacher's 10-minute recording: 15 drafts, 1 review item (the file load) and 6 left out (2 confirmed undos and 4 interface clicks). Every modelling action came through, in order.</li>
+          <li>Report messages are read as plain data and never run.</li>
+          <li>Tests: 75 unit tests (28 for the generator, using the real recordings as fixtures) and 33 in-Blender tests pass.</li>
+        </ul>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-11-12">2026-11-12</time><h3>Step 3 checkpoint: 10-minute real recording</h3></div>
