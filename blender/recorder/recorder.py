@@ -250,7 +250,16 @@ def stop(reason="stopped"):
     _collect()
     if not _rec["paused"]:
         snapshot_tick(force=True)
-    _rec["queue"].append({"kind": "stop", "reason": reason, "t": _t()})
+    timings = _rec["snapshot_ms"]
+    _rec["queue"].append({
+        "kind": "stop", "reason": reason, "t": _t(),
+        # Snapshot cost for this Blender session, kept for the performance budget.
+        "snapshot_timings": {
+            "count": len(timings),
+            "mean_ms": round(sum(timings) / len(timings), 3) if timings else None,
+            "max_ms": round(max(timings), 3) if timings else None,
+        },
+    })
     _flush()
     _close()
 

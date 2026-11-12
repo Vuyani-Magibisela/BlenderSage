@@ -124,7 +124,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="status">
     <summary><h2>Where things stand</h2></summary>
     <div class="panel-body">
-      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. <strong>Step 3</strong>, the recorder, is built and tested. It is waiting at its checkpoint for a ~10-minute recording by the teacher before Step 4, the draft-step generator.</p>
+      <p>Milestone 1, Step 2 is built: an 8-step desk-organiser lesson runs inside Blender with an instruction card, target highlight, editor outline and automatic checks. Automated tests and the hands-on checklist pass. <strong>Step 3</strong>, the recorder, is built and tested. The teacher's 10-minute checkpoint recording has been made and reviewed. Step 3 is waiting for the owner's approval before Step 4, the draft-step generator.</p>
     </div>
   </details>
 
@@ -136,7 +136,7 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
         <li><span class="n">0</span><span class="t">Verify the APIs the design depends on<small>Action reports, property edits, screenshots, overlay drawing</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip done">Done</span></span></li>
         <li><span class="n">1</span><span class="t">Extension skeleton<small>Manifest, clean register/unregister, sidebar panel</small></span><span class="chips"><span class="chip done">Done</span></span></li>
         <li><span class="n">2</span><span class="t">Guidance prototype<small>Desk-organiser lesson, instruction card, highlights, completion checks</small></span><span class="chips"><span class="chip done">Done</span></span></li>
-        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip wait">Awaiting 10-min recording</span></span></li>
+        <li><span class="n">3</span><span class="t">Recorder<small>Action and state journals, pause/resume, crash recovery</small></span><span class="chips"><span class="chip gate">Checkpoint</span><span class="chip wait">Recording reviewed, awaiting approval</span></span></li>
         <li><span class="n">4</span><span class="t">Draft-step generator<small>Merge journals into draft steps and review items</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
         <li><span class="n">5</span><span class="t">Decision-gate evidence<small>60–90 minute recording; 80% usable-draft threshold</small></span><span class="chips"><span class="chip todo">Not started</span></span></li>
       </ol>
@@ -146,6 +146,18 @@ footer { color: var(--muted); font-size: 0.88rem; display: grid; gap: 6px; }
   <details class="panel" open id="timeline">
     <summary><h2>Timeline</h2></summary>
     <div class="panel-body">
+
+      <article class="entry">
+        <div class="entry-head"><time datetime="2026-11-12">2026-11-12</time><h3>Step 3 checkpoint: 10-minute real recording</h3></div>
+        <ul>
+          <li>The recording ran 10 min 14 s and recorded 26 actions. It produced 7.1 KB of actions and 3.8 KB of state, with no truncated lines.</li>
+          <li>Recorded correctly: N-panel edits, undo, redo, pause and resume, edit-mode bevel, inset and extrude, resize, translate, adding a sphere, smooth shading, and opening a file. The cancelled move was correctly left out.</li>
+          <li>Edit-mode mesh edits show in the state journal only when they change the object's size. For those steps, the generator has to rely on the action journal.</li>
+          <li>During a tool, a state change can be saved up to 0.1 s before the tool's action report. Step 4 will match changes to actions with a window that also looks slightly back in time.</li>
+          <li>Noise to filter out: sidebar tab switches, and file-browser folder changes, which also write the teacher's local folder path into the journal.</li>
+          <li>Fixes: the stop entry now saves snapshot timings, which this recording had no way to keep. Test <code>.blend</code> files are kept out of the zip and out of git.</li>
+        </ul>
+      </article>
 
       <article class="entry">
         <div class="entry-head"><time datetime="2026-10-16">2026-10-16</time><h3>Milestone 1, Step 3: recorder</h3></div>

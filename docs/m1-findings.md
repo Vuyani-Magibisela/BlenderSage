@@ -212,7 +212,29 @@ To be recorded with the real interface. Steps:
 4. Click **Stop Recording**.
 5. Use **Open Recordings Folder** to find the journals.
 
-Results: *pending*.
+Results (recording `20261112-155649-285f`, 2026-11-12, 10 min 14 s, real interface):
+
+- **Size:** 31 action lines (7.1 KB), 17 state lines (3.8 KB). Both parse as JSON Lines, with no truncated lines. 26 reports were recorded.
+- **Recorded correctly:**
+  - N-panel location edits (`location[0] = 1.5`, `location[1] = 2`, `location[2] = 1.25`) and their state diffs;
+  - two undos, each followed by a diff that restores the earlier location;
+  - pause and resume, with nothing recorded in between and a full snapshot on resume;
+  - edit-mode `bevel`, `select_mode`, `inset` and two `extrude_region_move`;
+  - `resize` (typed 0.7 and 0.6), `translate` (typed 3 on X), `primitive_uv_sphere_add`, `shade_smooth`;
+  - `file_loaded` for `recorder_test_model.blend`, followed by an undo and a redo in edit mode.
+- **Correctly absent:** the cancelled move.
+- **Report IDs have gaps** (17–18, 21, 25–26, 32–33). These are reports of other types (`INFO`, `WARNING`) filtered by design. Blender wasn't responding to a query afterwards, so I couldn't confirm what they were.
+- **Edit-mode mesh edits only show in the state journal when the object's dimensions change.** The first extrude (+1 on Z) and the 0.7 resize appear as dimension diffs. The bevel, inset, the second extrude, and the undo/redo of that extrude produce no diff, because the snapshot has no mesh data. For edit-mode steps, the generator must rely on reports.
+- **A diff can come up to 0.1 s *before* its report.** During a modal tool the depsgraph updates live, and a snapshot can be taken before the tool is confirmed. Examples: the extrude diff at 185.178 vs report at 185.247, and the scale diff at 494.573 vs report at 494.68. With a cancelled interactive tool, a diff could in principle show a position that was later cancelled. None appeared here. **Step 4 rule:** match each diff to the nearest report within a window that also looks slightly back in time. Treat a diff with no matching report as either a no-report edit (such as Dimensions) or a modal intermediate, and keep only the last diff before the next report.
+- **The file load added no state diff**, because the reopened file matched the scene from before the load. The load trigger fired and found no changes. That is correct, since the state journal is diff-based.
+- **Noise the generator must drop:**
+  - UI-only property reports: `region.active_panel_category` (sidebar tab switches);
+  - `space_data.params.directory` (file browser folder). This one also writes the teacher's local folder path into the journal.
+
+  Filter `bpy.context.region.*` and `bpy.context.space_data.params.*` before making steps. Consider dropping them at record time in Milestone 2.
+- **No crash-recovery test** in this session. It is covered by the GUI check above.
+- **Snapshot timings were not saved** in this recording, so the performance row stays open. Fix: the `stop` entry now includes `snapshot_timings` (`count`, `mean_ms`, `max_ms`). The next real recording will fill the row.
+- **Packaging fix:** two test `.blend` files saved in the repo root had been built into the zip (221 KB). `*.blend` and `*.blend1` are now excluded in the manifest and `.gitignore`, and the zip is back to 24 KB.
 
 ## Performance timings
 
@@ -226,6 +248,6 @@ Results: *pending*.
 | Target box draw | mean 0.14–0.27 ms, max 0.36 ms | same |
 | Editor outline draw | mean 0.05–0.55 ms, max 3.0 ms (first frame) | same |
 | State snapshot + diff (factory scene, 3–4 objects) | mean 0.58 ms, max 2.5 ms | `gui_check_recorder.py`, dev PC |
-| State snapshots on a 10-minute real session | pending checkpoint recording | |
+| State snapshots on a 10-minute real session | not saved in the 2026-11-12 recording; the `stop` entry now records them | next real recording |
 
 Timings are from the development PC, not lab hardware. They need repeating on a lab machine.

@@ -170,7 +170,9 @@ def test_hooks_are_persistent_and_removed_on_stop():
     rec.stop()
     assert ext.blender.lifecycle.active_counts() == dict.fromkeys(counts, 0)
     _, actions, _ = _journal(ext, directory, rec_id, "actions")
-    assert actions[-1] == {"kind": "stop", "reason": "stopped", "t": actions[-1]["t"]}
+    stop = actions[-1]
+    assert (stop["kind"], stop["reason"]) == ("stop", "stopped")
+    assert set(stop["snapshot_timings"]) == {"count", "mean_ms", "max_ms"}
     ext.unregister()
 
 
